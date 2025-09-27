@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dice.py &#8212; Writing Tools 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="miseries.py" href="miseries.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="dice-py">
+<h1>dice.py<a class="headerlink" href="#dice-py" title="Link to this heading">¶</a></h1>
+<p>A Pythonic definition of a DSL for dice expressions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">3</span> <span class="o">*</span> <span class="n">D6</span> <span class="o">+</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>This creates an object with methods for rolling the specified dice,
+or computing the min, max, mean, and standard deviation.</p>
+<section id="module-dice">
+<span id="implementation"></span><h2>Implementation<a class="headerlink" href="#module-dice" title="Link to this heading">¶</a></h2>
+<p>A module to model polyhedral dice.</p>
+<p>While this isn’t hugely useful for TTRPG design or literary work,
+it does do some predictions of the expected distribution of
+a few simple dice mechanics.</p>
+<section id="used-as-a-library">
+<h3>Used as a library<a class="headerlink" href="#used-as-a-library" title="Link to this heading">¶</a></h3>
+<p>In Rogue-like games, Gold is generally uniform distribution
+between <span class="math notranslate nohighlight">\(2l\)</span> and <span class="math notranslate nohighlight">\(16l\)</span> for a given level, <span class="math notranslate nohighlight">\(l\)</span>.
+This module defines a <a class="reference internal" href="#dice.UniformValue" title="dice.UniformValue"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformValue</span></code></a> class for this.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">level</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_u</span> <span class="o">=</span> <span class="n">UniformValue</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">level</span><span class="p">,</span> <span class="mi">16</span> <span class="o">*</span> <span class="n">level</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_u</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">gold_u</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">level</span><span class="p">,</span> <span class="mi">16</span><span class="o">*</span><span class="n">level</span>
+<span class="go">(2, 16, 2, 16)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_u</span><span class="o">.</span><span class="n">roll</span><span class="p">()</span>
+<span class="go">12</span>
+</pre></div>
+</div>
+<p>A slightly more colorful approach is to use a more normal distribution.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">level</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">level</span><span class="p">)</span> <span class="o">*</span> <span class="n">D6</span> <span class="o">-</span> <span class="n">level</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_1</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">gold_1</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">level</span><span class="p">,</span> <span class="mi">16</span><span class="o">*</span><span class="n">level</span>
+<span class="go">(2, 17, 2, 16)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">gold_1</span><span class="p">)</span>
+<span class="go">&#39;3D6-1&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">repr</span><span class="p">(</span><span class="n">gold_1</span><span class="p">)</span>
+<span class="go">&#39;3 * D6 -1&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">level</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">level</span><span class="p">)</span> <span class="o">*</span> <span class="n">D6</span> <span class="o">-</span> <span class="n">level</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_2</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">gold_2</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">level</span><span class="p">,</span> <span class="mi">16</span><span class="o">*</span><span class="n">level</span>
+<span class="go">(4, 34, 4, 32)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_3</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">level</span><span class="p">)</span> <span class="o">*</span> <span class="n">D6</span> <span class="o">-</span> <span class="n">level</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gold_3</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">gold_3</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">level</span><span class="p">,</span> <span class="mi">16</span><span class="o">*</span><span class="n">level</span>
+<span class="go">(6, 51, 6, 48)</span>
+</pre></div>
+</div>
+</section>
+<section id="using-the-library-directly">
+<h3>Using the library directly<a class="headerlink" href="#using-the-library-directly" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;from dice import *; print((3*D6+2).roll())&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="cli">
+<h3>CLI<a class="headerlink" href="#cli" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tools/src/dice.py<span class="w"> </span><span class="s1">&#39;3*D6+2&#39;</span>
+</pre></div>
+</div>
+<p>The shell <code class="docutils literal notranslate"><span class="pre">'</span></code> apostrophes are required.</p>
+<p>Interactive</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tools/src/dice.py<span class="w"> </span>-i
+Enter<span class="w"> </span>a<span class="w"> </span>Python-syntax<span class="w"> </span>dice<span class="w"> </span>expressions,<span class="w"> </span>like<span class="w"> </span><span class="m">3</span>*D6+2.
+<span class="o">[</span>dice<span class="o">]</span><span class="w"> </span><span class="o">(</span><span class="m">4</span>*D6<span class="o">)</span>.kh<span class="o">(</span><span class="m">3</span><span class="o">)</span>
+<span class="m">6</span>
+<span class="o">[</span>dice<span class="o">]</span><span class="w"> </span>count<span class="w"> </span><span class="m">6</span>
+<span class="o">[</span><span class="m">6</span><span class="w"> </span>rolls<span class="o">]</span><span class="w"> </span><span class="o">(</span><span class="m">4</span>*D6<span class="o">)</span>.kh<span class="o">(</span><span class="m">3</span><span class="o">)</span>
+<span class="m">7</span>
+<span class="m">14</span>
+<span class="m">13</span>
+<span class="m">14</span>
+<span class="m">11</span>
+<span class="m">12</span>
+<span class="o">[</span><span class="m">6</span><span class="w"> </span>rolls<span class="o">]</span>
+<span class="m">10</span>
+<span class="m">14</span>
+<span class="m">12</span>
+<span class="m">15</span>
+<span class="m">16</span>
+<span class="m">10</span>
+<span class="o">[</span><span class="m">6</span><span class="w"> </span>rolls<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="dice.Die">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dice.</span></span><span class="sig-name descname"><span class="pre">Die</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dice.html#Die"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dice.Die" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a useful source of random numbers from a “die expression”.
+A die expression can also provide some expected value information for most (not all) cases.
+The syntax uses Python objects and operators.</p>
+<p>Examples:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">seed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The base objects, D4, D6, etc.
+&gt;&gt;&gt; D6.roll()
+6</p>
+<p>A dice expression in Python syntax.
+&gt;&gt;&gt; d = 3 * D6
+&gt;&gt;&gt; d.roll()
+8
+&gt;&gt;&gt; d.pool()
+[2, 2, 3]
+&gt;&gt;&gt; str(d)
+‘3D6’</p>
+<p>A set of dice rolls. Note <code class="docutils literal notranslate"><span class="pre">d</span> <span class="pre">=</span> <span class="pre">3</span> <span class="pre">*</span> <span class="pre">D6</span></code>.
+&gt;&gt;&gt; roll10 = [(d - 3).roll() for i in range(10)]
+&gt;&gt;&gt; roll10
+[6, 14, 7, 0, 6, 8, 11, 12, 8, 3]</p>
+<p>Expected values.
+&gt;&gt;&gt; d.min
+3
+&gt;&gt;&gt; d.max
+18
+&gt;&gt;&gt; d.mean
+10.5
+&gt;&gt;&gt; d.stdev  # doctest: +ELLIPSIS
+2.958…</p>
+<p>The “roll 4d6 keep the highest 3” expression.
+The ()’s are required.
+&gt;&gt;&gt; char = (4 * D6).kh(3)
+&gt;&gt;&gt; char.pool()
+[3, 4, 6]</p>
+<section id="expected-values">
+<h3>Expected Values<a class="headerlink" href="#expected-values" title="Link to this heading">¶</a></h3>
+<p>The expected values are exact, and can do things like transform
+a dice value into a z-score: <code class="docutils literal notranslate"><span class="pre">(d.roll()</span> <span class="pre">-</span> <span class="pre">d.mean)</span> <span class="pre">/</span> <span class="pre">d.stdev</span></code>.
+This will have value from about -3 to about +3 and can be used to
+turn a number into a descriptive summary.</p>
+<p>The predictions do <strong>not</strong> account for <code class="docutils literal notranslate"><span class="pre">kh()</span></code> modifiers.</p>
+<p>See <a class="reference external" href="https://rpubs.com/Avijit0616/698613">https://rpubs.com/Avijit0616/698613</a></p>
+<p>The expected values are the basis for comparison among two Die instances.
+&gt;&gt;&gt; D8 &gt; D6
+True</p>
+</section>
+<section id="note">
+<h3>Note<a class="headerlink" href="#note" title="Link to this heading">¶</a></h3>
+<p>A thing that “seems” to behave inconsistently
+in unit tests.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">if</span> <span class="n">D20</span><span class="o">.</span><span class="n">roll</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">13</span><span class="p">]</span>
+<span class="go">[7, 9]</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dice.UniformValue">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dice.</span></span><span class="sig-name descname"><span class="pre">UniformValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dice.html#UniformValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dice.UniformValue" title="Link to this definition">¶</a></dt>
+<dd><p>A uniformly distributed value on the <strong>closed</strong> interval. Both ends included.
+Used with Aggregates that have a uniform distribution of instances.</p>
+<p>This is compatible with <a class="reference internal" href="#dice.Die" title="dice.Die"><code class="xref py py-class docutils literal notranslate"><span class="pre">Die</span></code></a> to permit aggregation of distinct domains.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Writing Tools</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="plot.html">plot.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terrain.html">terrain-tk.py and notebooks/terrain</a></li>
+<li class="toctree-l1"><a class="reference internal" href="language.html">language.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">features.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="names.html">names.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miseries.html">miseries.py</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">dice.py</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-dice">Implementation</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="miseries.html" title="previous chapter">miseries.py</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, S.Lott.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/dice.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

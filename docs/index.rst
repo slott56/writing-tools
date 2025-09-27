@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Writing Tools for TTRPG or Literature
-======================================
+Writing Tools for TTRPG (or Literature)
+=======================================
 
 Some tool frameworks and design ideas to help fiction writers.
 
@@ -25,4 +25,4 @@ Understand them and extend them.
     features
     names
     miseries
-
+    dice
