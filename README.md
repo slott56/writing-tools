@@ -3,8 +3,8 @@
 These are not polished, finished, stand-alone applications.
 These are frameworks you can customize for the fiction you're working on.
 
-Therefore, kindly do **not** simply run these without further customization.
-The outputs are recognizable with simple statistical checks.
+You probably do **not** want to simply run these without further customization.
+They're seeds for thought.
 
 1.  ``plot.py`` Uses Tarot card layouts to create a story line.
 
@@ -20,4 +20,5 @@ The outputs are recognizable with simple statistical checks.
 
 6.  ``miseries.py`` Develops human miseries.
 
+7.  ``dice.py`` a DSL for "dice expressions".
 
