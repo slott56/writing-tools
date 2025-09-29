@@ -91,8 +91,7 @@ import math
 from random import randint, seed
 import sys
 from textwrap import dedent
-from types import CodeType
-from typing import Any, Annotated
+from typing import Any, Annotated, Self
 
 import typer
 import rich
@@ -305,30 +304,30 @@ class Die:
         """The sum of the dice pool with the adjustment applied."""
         return sum(self.pool()) + self.adj
 
-    def __rmul__(self, other: Any) -> "Die":
+    def __rmul__(self, other: Any) -> Self:
         """Implement int * Die."""
         match other:
             case int():
-                return Die(self.faces, n=self.n * other, adj=self.adj)
+                return self.__class__(self.faces, n=self.n * other, adj=self.adj)
         return NotImplemented  # pragma: no cover
 
-    def __add__(self, other: Any) -> "Die":
+    def __add__(self, other: Any) -> Self:
         """Implement Die + int."""
         match other:
             case int():
-                return Die(self.faces, n=self.n, adj=self.adj + other)
+                return self.__class__(self.faces, n=self.n, adj=self.adj + other)
         return NotImplemented  # pragma: no cover
 
-    def __sub__(self, other: Any) -> "Die":
+    def __sub__(self, other: Any) -> Self:
         """Implement Die - int."""
         match other:
             case int():
-                return Die(self.faces, n=self.n, adj=self.adj - other)
+                return self.__class__(self.faces, n=self.n, adj=self.adj - other)
         return NotImplemented  # pragma: no cover
 
-    def kh(self, keep: int | None = None) -> "Die":
+    def kh(self, keep: int | None = None) -> Self:
         """Creates new Die with the keep highest "keep" values."""
-        return Die(self.faces, n=self.n, adj=self.adj, keep=keep or self.n - 1)
+        return self.__class__(self.faces, n=self.n, adj=self.adj, keep=keep or self.n - 1)
 
 
 D4 = Die(4)
@@ -414,6 +413,50 @@ class FixedValue(Die):
     def roll(self) -> int:
         return self.value
 
+class WildDie(Die):
+    """
+    The "Wild Die" mechanic for OpenD6 games.
+
+    >>> seed(42)
+    >>> dice = 5 * WildDie(6)
+    >>> dice.roll()
+    17
+    >>> dice.wild
+    'success'
+    >>> dice.roll()
+    23
+    >>> dice.wild
+    'success'
+    >>> dice.roll()
+    18
+    >>> dice.wild
+    ''
+    """
+    wild: str
+
+    def kh(self, keep: int | None = None) -> Self:
+        raise TypeError("not supported: kh()")
+
+    def pool(self) -> list[int]:
+        """A collection of dice."""
+        return list(randint(1, self.faces) for _ in range(self.n))
+
+    def roll(self) -> int:
+        dice = self.pool()
+        if dice[0] == 1:
+            self.wild = "failure"
+            return sum(dice)
+        elif dice[0] == self.faces:
+            self.wild = "success"
+            total = 0
+            while dice[0] == self.faces:
+                total += sum(dice)
+                dice = self.pool()
+            return total
+        else:
+            self.wild = ""
+            return sum(dice)
+
 
 class UniformValue(Die):
     """
@@ -493,15 +536,16 @@ class Interaction(Cmd):
     """An Interactive dice roller."""
 
     prompt = "[dice] "
+    namespace: dict[str, Die]
 
     def preloop(self) -> None:
         self.count = 1
         self.dice_expr: Die | None = None
 
-    def do_help(self, arg: str) -> bool:
+    def do_help(self, arg: str) -> bool | None:
         """Provide some guidance."""
         if arg:
-            super().do_help(arg)
+            return super().do_help(arg)
         else:
             defined_dice = ", ".join(self.namespace.keys())
             help = dedent(f"""\
@@ -517,20 +561,20 @@ class Interaction(Cmd):
                 rich.print(
                     f"Currently rolling {self.count} instance{'' if self.count == 1 else 's'} of {self.dice_expr!r}"
                 )
-            super().do_help("")
+            return super().do_help("")
 
-    def do_quit(self, arg: str) -> bool:
+    def do_quit(self, arg: str) -> bool | None:
         """Exit the the dice-roller."""
         return True
 
     do_exit = do_quit
     do_EOF = do_quit
 
-    def do_count(self, arg: str) -> bool:
+    def do_count(self, arg: str) -> bool | None:
         """Set the number of times to roll the dice expression."""
         if not arg:
             rich.print(f"Rolling {self.count} times")
-            return
+            return False
         try:
             self.count = int(arg)
             if self.dice_expr:
@@ -539,28 +583,32 @@ class Interaction(Cmd):
                 rich.print(f"Rolling {self.count} times")
         except ValueError:
             rich.print(f"Invalid {arg!r} value for count")
+        return False
 
-    def do_expect(self, arg: str) -> bool:
+    def do_expect(self, arg: str) -> bool | None:
         """Display expected ranges of values of a dice expression."""
-        if not self.dice_expr and not arg:
-            rich.print("No dice expression provided")
         if arg:
             self._parse(arg)
+        if not self.dice_expr:
+            rich.print("No dice expression provided")
+            return False
         rich.print(repr(self.dice_expr))
         rich.print(f"range: {self.dice_expr.min} - {self.dice_expr.max}")
         rich.print(f"mean: {self.dice_expr.mean:.2f}")
         rich.print(f"standard deviation: {self.dice_expr.stdev:.3f}")
+        return False
 
     def emptyline(self) -> bool:
         """Roll the most recently-parsed dice expression."""
         if not self.dice_expr:
             rich.print("Enter a valid dice expression. For help, type help.")
-            return
+            return False
         for _ in range(self.count):
             output = self.dice_expr.roll()
             rich.print(output)
+        return False
 
-    def default(self, line: str) -> bool:
+    def default(self, line: str) -> None:
         """Parse this line, assuming it's a dice expression."""
         self._parse(line)
         self.emptyline()
