@@ -420,11 +420,11 @@ class WildDie(Die):
     >>> seed(42)
     >>> dice = 5 * WildDie(6)
     >>> dice.roll()
-    17
+    30
     >>> dice.wild
     'success'
     >>> dice.roll()
-    23
+    32
     >>> dice.wild
     'success'
     >>> dice.roll()
@@ -443,20 +443,17 @@ class WildDie(Die):
 
     def roll(self) -> int:
         dice = self.pool()
+        total = sum(dice)
         if dice[0] == 1:
             self.wild = "failure"
-            return sum(dice)
         elif dice[0] == self.faces:
             self.wild = "success"
-            total = 0
             while dice[0] == self.faces:
-                total += sum(dice)
                 dice = self.pool()
-            return total
+                total += sum(dice)
         else:
             self.wild = ""
-            return sum(dice)
-
+        return total
 
 class UniformValue(Die):
     """
