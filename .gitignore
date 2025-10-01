@@ -11,6 +11,15 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Notebooks
 /notebooks/Untitled.ipynb
 /notebooks/.ipynb_checkpoints/*.ipynb
+/.ipynb_checkpoints/README-checkpoint
+/.ipynb_checkpoints/terrain-checkpoint.ipynb
+/.ipynb_checkpoints/Untitled-checkpoint.ipynb
+
+# Documentation
 /docs/_build/doctrees/*
+/docs/_build/html/.buildinfo
+/docs/_build/html/.buildinfo.bak

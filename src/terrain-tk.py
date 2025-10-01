@@ -1,4 +1,4 @@
-"""
+r"""
 Terrain Generator -- Turtle/Tk
 
 1. HexGrid
@@ -81,7 +81,7 @@ import os
 from pathlib import Path
 import random
 import string
-from typing import Self
+import turtle
 
 from invoke import task, Program, Collection
 import matplotlib.colors as mcolors
@@ -668,7 +668,7 @@ def empire(c, animation: bool = True, seed: int | None = 12991971503914480054, c
     if not seed:
         seed = reduce(lambda a, b: a*256 + b, os.urandom(4))
     if cities > 10:
-        raise ValueError(f"Cities must be between 1 and 10")
+        raise ValueError("Cities must be between 1 and 10")
     print(f"python {Path(__file__).name} empire --seed={seed} --cities={cities} --generations={generations}")
     hexgrid = HexGrid(18)
     drawing = PyPlotDrawing(hexgrid, f"Empire {seed}")

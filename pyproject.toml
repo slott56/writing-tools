@@ -18,4 +18,19 @@ dev-dependencies = [
     "tox>=4.24.1",
     "sphinx>=8.2.3",
     "ruff>=0.12.11",
+    "mypy>=1.18.2",
+]
+
+[tool.tox]
+requires = ["tox>=4.19"]
+env_list = ["3.14", "3.13"]
+
+[tool.tox.env_run_base]
+description = "Run test under {base_python}"
+deps = ["pytest", "ruff", "mypy"]
+commands = [
+    ["pytest"],
+    ["pytest", "--doctest-modules", "src"],
+    ["ruff", "check", "--ignore", "F401,F841,E741"],
+    ["mypy", "src/dice.py"],
 ]
