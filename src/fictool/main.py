@@ -12,7 +12,9 @@ import typer
 
 from names import generate_names
 from features import generate_features
+from dice import dice_app
 
+VERSION = "0.3.0"
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -79,6 +81,7 @@ def features(
         print(table)
         print()
 
+app.add_typer(dice_app, name="dice")
 
 if __name__ == "__main__":
     app()

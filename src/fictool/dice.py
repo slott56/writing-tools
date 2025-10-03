@@ -109,10 +109,12 @@ class Die:
     >>> seed(42)
 
     The base objects, D4, D6, etc.
+
     >>> D6.roll()
     6
 
     A dice expression in Python syntax.
+
     >>> d = 3 * D6
     >>> d.roll()
     8
@@ -122,11 +124,13 @@ class Die:
     '3D6'
 
     A set of dice rolls. Note ``d = 3 * D6``.
+
     >>> roll10 = [(d - 3).roll() for i in range(10)]
     >>> roll10
     [6, 14, 7, 0, 6, 8, 11, 12, 8, 3]
 
     Expected values.
+
     >>> d.min
     3
     >>> d.max
@@ -138,6 +142,7 @@ class Die:
 
     The "roll 4d6 keep the highest 3" expression.
     The ()'s are required.
+
     >>> char = (4 * D6).kh(3)
     >>> char.pool()
     [3, 4, 6]
@@ -155,6 +160,7 @@ class Die:
     See https://rpubs.com/Avijit0616/698613
 
     The expected values are the basis for comparison among two Die instances.
+
     >>> D8 > D6
     True
 
@@ -256,9 +262,17 @@ class Die:
 
     @property
     def mean(self) -> float:
-        """
+        r"""
+        The mean of this dice expression.
+
+        The mean, or expected value is
+
+        ..  math::
+
+            E(F) = \frac{1}{f}\sum\limits_{1 \leq x < f} x = \frac{f + 1}{2}
+
         For "keep high" rules, we *could* enumerate all possible rolls.
-        Its this::
+        It's this::
 
             rolls = chain(*self.n * [range(1, 1 + self.faces)])
             rolls_kh = (sorted(r)[-self.keep:] for r in rolls)
@@ -272,6 +286,38 @@ class Die:
 
     @property
     def stdev(self) -> float:
+        r"""
+        The standard deviation of this dice expression.
+
+        The variance, :math:`\sigma^2`, or :math:`\text{var}`, is
+
+        ..  math::
+
+            \text{Var}(F) = E(F^2) - E(F)^2
+
+        The expected value, :math:`E(F)`, is the mean.
+
+        The sum of the squares, :math:`E(F^2)`, is
+
+        ..   math::
+
+            E(F^2) = \frac{1}{f}\sum\limits_{1 \leq x < f} x^2 = \frac{\frac{f^{3}}{3} + \frac{f^{2}}{2} + \frac{f}{6}}{f}
+
+        We can compute the variance as follows:
+
+        ..  math::
+
+            \text{Var}(F) &= E(F^2) - E(F)^2 \\
+            &= \frac{\frac{f^{3}}{3} + \frac{f^{2}}{2} + \frac{f}{6}}{f} - \frac{f + 1}{2}^2 \\
+            &= \frac{\frac{f^{3}}{3} + \frac{f^{2}}{2} + \frac{f}{6}}{f} - \left(\frac{f}{2} + \frac{1}{2}\right)^{2}
+
+
+        The mean and variance scale linearly for the number of dice, :math:`d`.
+        The mean of multiple dice, :math:`d`, is :math:`\mu(F, d) = E(F) \times d`.
+        The variance, of multiple dice, :math:`d`, similarly is :math:`\text{Var}(F, d) = \text{Var}(F) \times d`.
+
+        The standard deviation doesn't scale linearly; it is :math:`\sigma = \sqrt{\text{Var}(F) \times d}`.
+        """
         assert self.keep == self.n, "Can't predict stdev with kh()"
         # var_1d = (
         #     sum(p**2 for p in range(1, self.faces + 1)) / self.faces
@@ -346,76 +392,12 @@ D100 = Die(100)
 PCT = D100
 
 
-class FixedValue(Die):
-    """
-    A single, fixed value. Weird, right?
-
-    This is compatible with :py:class:`Die` to permit aggregation of distinct domains.
-    It's slightly more efficient than ``UniformValue(x, x)``,
-    """
-
-    def __init__(self, value: int) -> None:
-        self.value = value
-
-    def __str__(self) -> str:
-        return str(self.value)
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.value})"
-
-    def __eq__(self, other: Any) -> bool:
-        match other:
-            case FixedValue():
-                return self.value == other.value
-            case _:  # pragma: no cover
-                return NotImplemented  # pragma: no cover
-
-    def __gt__(self, other: Any) -> bool:
-        match other:
-            case FixedValue():
-                return self.value > other.value
-        return NotImplemented  # pragma: no cover
-
-    def __lt__(self, other: Any) -> bool:
-        match other:
-            case FixedValue():
-                return self.value < other.value
-        return NotImplemented  # pragma: no cover
-
-    def __ge__(self, other: Any) -> bool:
-        match other:
-            case FixedValue():
-                return self.value >= other.value
-        return NotImplemented  # pragma: no cover
-
-    def __le__(self, other: Any) -> bool:
-        match other:
-            case FixedValue():
-                return self.value <= other.value
-        return NotImplemented  # pragma: no cover
-
-    @property
-    def min(self) -> int:
-        return self.value
-
-    @property
-    def max(self) -> int:
-        return self.value
-
-    @property
-    def mean(self) -> float:
-        return self.value
-
-    @property
-    def stdev(self) -> float:
-        return 1.0  # Not really
-
-    def roll(self) -> int:
-        return self.value
-
 class WildDie(Die):
     """
     The "Wild Die" mechanic for OpenD6 games.
+
+    A 1 is a critical failure.
+    A 6 is a critical success, roll again and accumulate the total.
 
     >>> seed(42)
     >>> dice = 5 * WildDie(6)
@@ -442,6 +424,7 @@ class WildDie(Die):
         return list(randint(1, self.faces) for _ in range(self.n))
 
     def roll(self) -> int:
+        """Apply the OpenD6 wild die mechanic."""
         dice = self.pool()
         total = sum(dice)
         if dice[0] == 1:
@@ -461,6 +444,8 @@ class UniformValue(Die):
     Used with Aggregates that have a uniform distribution of instances.
 
     This is compatible with :py:class:`Die` to permit aggregation of distinct domains.
+
+    This isn't obviously useful, really.
     """
 
     def __init__(self, low: int, high: int) -> None:
@@ -514,11 +499,12 @@ class UniformValue(Die):
 
     @property
     def mean(self) -> float:
+        """Mean of the uniform distribution."""
         return (self.low + self.high) / 2
 
     @property
     def stdev(self) -> float:
-        # return statistics.stdev(range(self.low, self.high+1))
+        """Standard deviation of the uniform distribution."""
         return math.sqrt(
             2
             * (((self.low + self.high) / 2) ** 2 + self.low + self.high)
@@ -625,78 +611,82 @@ class Interaction(Cmd):
         else:
             self.prompt = "[dice] "
         return stop
-
+namespace = {
+    "D4": D4,
+    "D6": D6,
+    "D8": D8,
+    "D10": D10,
+    "D12": D12,
+    "D20": D20,
+    "D100": D100,
+    "PCT": D100,
+}
 
 dice_app = typer.Typer()
 
+dice_expr_arg = typer.Argument(
+    help="Dice expression, example: '2*D6+3' (quotes are *required*)"
+)
 
 @dice_app.command()
-def main(
-    interactive: Annotated[
-        bool, typer.Option("--interactive", "-i", help="Start an interactive session")
-    ] = False,
-    expected_value: Annotated[
-        bool,
-        typer.Option(
-            "--expected",
-            "-e",
-            help="Show the expected range, mean, and standard deviation",
-        ),
-    ] = False,
+def interactive():
+    """An Interactice dice roller. Enter help at the [dice] prompt."""
+    cmd = Interaction()
+    cmd.namespace = namespace
+    cmd.cmdloop("Enter a Python-syntax dice expressions, like 3*D6+2.")
+
+def dice_expr(expression: str) -> Die:
+    try:
+        code_obj = compile(expression, "<argument>", mode="eval")
+        return eval(code_obj, globals=namespace, locals=namespace)
+    except BaseException as err:
+        sys.exit(f"The dice expression {expression!r} does not compute")
+
+@dice_app.command()
+def expected(expr: Annotated[str, dice_expr_arg]= ""):
+    """Compute the min, max, mean, and standard deviation for a dice expression."""
+    d = dice_expr(expr)
+    print(repr(d))
+    print(f"range: {d.min} - {d.max}")
+    print(f"mean: {d.mean:.2f}")
+    print(f"standard deviation: {d.stdev:.3f}")
+
+
+@dice_app.command()
+def roll(
+    expr: Annotated[str, dice_expr_arg] = "",
     count: Annotated[
         int, typer.Option("--count", "-c", help="number of times to roll")
     ] = 1,
-    expression: Annotated[
-        str,
-        typer.Argument(
-            help="Dice expression, example: '2*D6+3' (quotes are *required*)"
-        ),
-    ] = "",
+    ):
+    """Roll the handful of dice described by a dice expression.
+    Use the --count option to roll multiple times.
+    """
+    d = dice_expr(expr)
+
+    for _ in range(count):
+        output = d.roll()
+        print(output)
+
+
+@dice_app.callback()
+def set_seed(
     seed_value: Annotated[
         str | None,
         typer.Option("--seed", help="Impose a seed for reproducible random numbers"),
     ] = None,
-):
+    ):
     """
-    Either provide a Python-syntax dice expression or start an interactive command loop.
-    The Python syntax means the `*` is required for '3*D6'.
-    """
-    namespace = {
-        "D4": D4,
-        "D6": D6,
-        "D8": D8,
-        "D10": D10,
-        "D12": D12,
-        "D20": D20,
-        "D100": D100,
-        "PCT": D100,
-    }
+    CLI for dice expressions, like 3*D6+2.
 
+    Provide a Python-syntax dice expression for expected values or rolls of the dice.
+    Or, start an interactive command loop.
+    The Python syntax for a dice expression means the `*` is required for '3*D6'.
+    This also means that apostrophe, (', single quotes) are *required* around an expression.
+    """
     if seed_value:
         seed(seed_value.encode("ascii"))
 
-    if interactive:
-        if expression:
-            sys.exit(f"Extra command-line argument value found: {expression}")
-        cmd = Interaction()
-        cmd.namespace = namespace
-        cmd.cmdloop("Enter a Python-syntax dice expressions, like 3*D6+2.")
-
-    else:
-        try:
-            code_obj = compile(expression, "<argument>", mode="eval")
-            d = eval(code_obj, globals=namespace, locals=namespace)
-        except BaseException as err:
-            sys.exit(f"The dice expression {expression!r} does not compute")
-        if expected_value:
-            print(repr(d))
-            print(f"range: {d.min} - {d.max}")
-            print(f"mean: {d.mean:.2f}")
-            print(f"standard deviation: {d.stdev:.3f}")
-        else:
-            for _ in range(count):
-                output = d.roll()
-                print(output)
 
 
 if __name__ == "__main__":
