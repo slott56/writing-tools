@@ -1,6 +1,5 @@
 [project]
-name = "fiction-tools"
-version = "0.2.0"
+name = "fictool"
 description = "Tools to help writers create fictional worlds"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -11,9 +10,15 @@ dependencies = [
     "rich>=13.9.4",
     "typer>=0.17.3",
 ]
+dynamic = ["version"]
 
-[tool.uv]
-dev-dependencies = [
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
     "pytest>=8.3.5",
     "tox>=4.24.1",
     "sphinx>=8.2.3",
@@ -30,7 +35,16 @@ description = "Run test under {base_python}"
 deps = ["pytest", "ruff", "mypy"]
 commands = [
     ["pytest"],
-    ["pytest", "--doctest-modules", "src"],
+    ["pytest", "--doctest-modules", "src/fictool"],
     ["ruff", "check", "--ignore", "F401,F841,E741"],
-    ["mypy", "src/dice.py"],
+    ["mypy", "src/fictool/dice.py"],
 ]
+
+[project.scripts]
+fiction_tools = "fictool.main:app"
+
+[tool.hatch.version]
+path = "src/fictool/main.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fictool"]

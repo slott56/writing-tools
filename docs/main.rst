@@ -1,0 +1,16 @@
+#########
+ main.py
+#########
+
+A main application to provide a common CLI.
+
+Implementation
+==============
+
+..  automodule:: main
+
+..  autofunction:: main.words
+
+..  autofunction:: main.features
+
+

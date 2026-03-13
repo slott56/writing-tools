@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dice &#8212; Writing Tools 1.0 documentation</title>
+    <title>dice &#8212; Writing Tools 0.3.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
-    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/documentation_options.js?v=e259d695"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -124,8 +124,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">random</span><span class="w"> </span><span class="kn">import</span> <span class="n">randint</span><span class="p">,</span> <span class="n">seed</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">CodeType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Annotated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Self</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">typer</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">rich</span>
@@ -145,10 +144,12 @@
 <span class="sd">    &gt;&gt;&gt; seed(42)</span>
 
 <span class="sd">    The base objects, D4, D6, etc.</span>
+
 <span class="sd">    &gt;&gt;&gt; D6.roll()</span>
 <span class="sd">    6</span>
 
 <span class="sd">    A dice expression in Python syntax.</span>
+
 <span class="sd">    &gt;&gt;&gt; d = 3 * D6</span>
 <span class="sd">    &gt;&gt;&gt; d.roll()</span>
 <span class="sd">    8</span>
@@ -158,11 +159,13 @@
 <span class="sd">    &#39;3D6&#39;</span>
 
 <span class="sd">    A set of dice rolls. Note ``d = 3 * D6``.</span>
+
 <span class="sd">    &gt;&gt;&gt; roll10 = [(d - 3).roll() for i in range(10)]</span>
 <span class="sd">    &gt;&gt;&gt; roll10</span>
 <span class="sd">    [6, 14, 7, 0, 6, 8, 11, 12, 8, 3]</span>
 
 <span class="sd">    Expected values.</span>
+
 <span class="sd">    &gt;&gt;&gt; d.min</span>
 <span class="sd">    3</span>
 <span class="sd">    &gt;&gt;&gt; d.max</span>
@@ -174,6 +177,7 @@
 
 <span class="sd">    The &quot;roll 4d6 keep the highest 3&quot; expression.</span>
 <span class="sd">    The ()&#39;s are required.</span>
+
 <span class="sd">    &gt;&gt;&gt; char = (4 * D6).kh(3)</span>
 <span class="sd">    &gt;&gt;&gt; char.pool()</span>
 <span class="sd">    [3, 4, 6]</span>
@@ -191,6 +195,7 @@
 <span class="sd">    See https://rpubs.com/Avijit0616/698613</span>
 
 <span class="sd">    The expected values are the basis for comparison among two Die instances.</span>
+
 <span class="sd">    &gt;&gt;&gt; D8 &gt; D6</span>
 <span class="sd">    True</span>
 
@@ -292,9 +297,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The mean of this dice expression.</span>
+
+<span class="sd">        The mean, or expected value is</span>
+
+<span class="sd">        ..  math::</span>
+
+<span class="sd">            E(F) = \frac{1}{f}\sum\limits_{1 \leq x &lt; f} x = \frac{f + 1}{2}</span>
+
 <span class="sd">        For &quot;keep high&quot; rules, we *could* enumerate all possible rolls.</span>
-<span class="sd">        Its this::</span>
+<span class="sd">        It&#39;s this::</span>
 
 <span class="sd">            rolls = chain(*self.n * [range(1, 1 + self.faces)])</span>
 <span class="sd">            rolls_kh = (sorted(r)[-self.keep:] for r in rolls)</span>
@@ -308,6 +321,38 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">stdev</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The standard deviation of this dice expression.</span>
+
+<span class="sd">        The variance, :math:`\sigma^2`, or :math:`\text{var}`, is</span>
+
+<span class="sd">        ..  math::</span>
+
+<span class="sd">            \text{Var}(F) = E(F^2) - E(F)^2</span>
+
+<span class="sd">        The expected value, :math:`E(F)`, is the mean.</span>
+
+<span class="sd">        The sum of the squares, :math:`E(F^2)`, is</span>
+
+<span class="sd">        ..   math::</span>
+
+<span class="sd">            E(F^2) = \frac{1}{f}\sum\limits_{1 \leq x &lt; f} x^2 = \frac{\frac{f^{3}}{3} + \frac{f^{2}}{2} + \frac{f}{6}}{f}</span>
+
+<span class="sd">        We can compute the variance as follows:</span>
+
+<span class="sd">        ..  math::</span>
+
+<span class="sd">            \text{Var}(F) &amp;= E(F^2) - E(F)^2 \\</span>
+<span class="sd">            &amp;= \frac{\frac{f^{3}}{3} + \frac{f^{2}}{2} + \frac{f}{6}}{f} - \frac{f + 1}{2}^2 \\</span>
+<span class="sd">            &amp;= \frac{\frac{f^{3}}{3} + \frac{f^{2}}{2} + \frac{f}{6}}{f} - \left(\frac{f}{2} + \frac{1}{2}\right)^{2}</span>
+
+
+<span class="sd">        The mean and variance scale linearly for the number of dice, :math:`d`.</span>
+<span class="sd">        The mean of multiple dice, :math:`d`, is :math:`\mu(F, d) = E(F) \times d`.</span>
+<span class="sd">        The variance, of multiple dice, :math:`d`, similarly is :math:`\text{Var}(F, d) = \text{Var}(F) \times d`.</span>
+
+<span class="sd">        The standard deviation doesn&#39;t scale linearly; it is :math:`\sigma = \sqrt{\text{Var}(F) \times d}`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="s2">&quot;Can&#39;t predict stdev with kh()&quot;</span>
         <span class="c1"># var_1d = (</span>
         <span class="c1">#     sum(p**2 for p in range(1, self.faces + 1)) / self.faces</span>
@@ -318,10 +363,13 @@
         <span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var_1d</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
 
+<div class="viewcode-block" id="Die.pool">
+<a class="viewcode-back" href="../dice.html#dice.Die.pool">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">pool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A collection of dice with the &quot;keep-high&quot; applied.&quot;&quot;&quot;</span>
         <span class="n">base</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">base</span><span class="p">)[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">base</span><span class="p">)[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep</span> <span class="p">:]</span></div>
+
 
         <span class="c1"># Or this...</span>
         <span class="c1"># def kh(dice: list[int], n: int) -&gt; list[int]:</span>
@@ -336,34 +384,40 @@
         <span class="c1">#     base.remove(min(base))</span>
         <span class="c1"># return base</span>
 
+<div class="viewcode-block" id="Die.roll">
+<a class="viewcode-back" href="../dice.html#dice.Die.roll">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The sum of the dice pool with the adjustment applied.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">())</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">())</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Die&quot;</span><span class="p">:</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Implement int * Die.&quot;&quot;&quot;</span>
         <span class="k">match</span> <span class="n">other</span><span class="p">:</span>
             <span class="k">case</span> <span class="nb">int</span><span class="p">():</span>
-                <span class="k">return</span> <span class="n">Die</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">*</span> <span class="n">other</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">*</span> <span class="n">other</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>  <span class="c1"># pragma: no cover</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Die&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Implement Die + int.&quot;&quot;&quot;</span>
         <span class="k">match</span> <span class="n">other</span><span class="p">:</span>
             <span class="k">case</span> <span class="nb">int</span><span class="p">():</span>
-                <span class="k">return</span> <span class="n">Die</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span> <span class="o">+</span> <span class="n">other</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span> <span class="o">+</span> <span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>  <span class="c1"># pragma: no cover</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Die&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Implement Die - int.&quot;&quot;&quot;</span>
         <span class="k">match</span> <span class="n">other</span><span class="p">:</span>
             <span class="k">case</span> <span class="nb">int</span><span class="p">():</span>
-                <span class="k">return</span> <span class="n">Die</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span> <span class="o">-</span> <span class="n">other</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span> <span class="o">-</span> <span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">NotImplemented</span>  <span class="c1"># pragma: no cover</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">kh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Die&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Die.kh">
+<a class="viewcode-back" href="../dice.html#dice.Die.kh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates new Die with the keep highest &quot;keep&quot; values.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Die</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="n">keep</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="n">keep</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+</div>
 
 
 
@@ -383,72 +437,62 @@
 <span class="n">PCT</span> <span class="o">=</span> <span class="n">D100</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">FixedValue</span><span class="p">(</span><span class="n">Die</span><span class="p">):</span>
+<div class="viewcode-block" id="WildDie">
+<a class="viewcode-back" href="../dice.html#dice.WildDie">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WildDie</span><span class="p">(</span><span class="n">Die</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A single, fixed value. Weird, right?</span>
+<span class="sd">    The &quot;Wild Die&quot; mechanic for OpenD6 games.</span>
 
-<span class="sd">    This is compatible with :py:class:`Die` to permit aggregation of distinct domains.</span>
-<span class="sd">    It&#39;s slightly more efficient than ``UniformValue(x, x)``,</span>
+<span class="sd">    A 1 is a critical failure.</span>
+<span class="sd">    A 6 is a critical success, roll again and accumulate the total.</span>
+
+<span class="sd">    &gt;&gt;&gt; seed(42)</span>
+<span class="sd">    &gt;&gt;&gt; dice = 5 * WildDie(6)</span>
+<span class="sd">    &gt;&gt;&gt; dice.roll()</span>
+<span class="sd">    30</span>
+<span class="sd">    &gt;&gt;&gt; dice.wild</span>
+<span class="sd">    &#39;success&#39;</span>
+<span class="sd">    &gt;&gt;&gt; dice.roll()</span>
+<span class="sd">    32</span>
+<span class="sd">    &gt;&gt;&gt; dice.wild</span>
+<span class="sd">    &#39;success&#39;</span>
+<span class="sd">    &gt;&gt;&gt; dice.roll()</span>
+<span class="sd">    18</span>
+<span class="sd">    &gt;&gt;&gt; dice.wild</span>
+<span class="sd">    &#39;&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wild</span><span class="p">:</span> <span class="nb">str</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+<div class="viewcode-block" id="WildDie.kh">
+<a class="viewcode-back" href="../dice.html#dice.WildDie.kh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;not supported: kh()&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">)&quot;</span>
+<div class="viewcode-block" id="WildDie.pool">
+<a class="viewcode-back" href="../dice.html#dice.WildDie.pool">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A collection of dice.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">match</span> <span class="n">other</span><span class="p">:</span>
-            <span class="k">case</span> <span class="n">FixedValue</span><span class="p">():</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
-            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-                <span class="k">return</span> <span class="bp">NotImplemented</span>  <span class="c1"># pragma: no cover</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">match</span> <span class="n">other</span><span class="p">:</span>
-            <span class="k">case</span> <span class="n">FixedValue</span><span class="p">():</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
-        <span class="k">return</span> <span class="bp">NotImplemented</span>  <span class="c1"># pragma: no cover</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">match</span> <span class="n">other</span><span class="p">:</span>
-            <span class="k">case</span> <span class="n">FixedValue</span><span class="p">():</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
-        <span class="k">return</span> <span class="bp">NotImplemented</span>  <span class="c1"># pragma: no cover</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">match</span> <span class="n">other</span><span class="p">:</span>
-            <span class="k">case</span> <span class="n">FixedValue</span><span class="p">():</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
-        <span class="k">return</span> <span class="bp">NotImplemented</span>  <span class="c1"># pragma: no cover</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">match</span> <span class="n">other</span><span class="p">:</span>
-            <span class="k">case</span> <span class="n">FixedValue</span><span class="p">():</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span>
-        <span class="k">return</span> <span class="bp">NotImplemented</span>  <span class="c1"># pragma: no cover</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">stdev</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">1.0</span>  <span class="c1"># Not really</span>
-
+<div class="viewcode-block" id="WildDie.roll">
+<a class="viewcode-back" href="../dice.html#dice.WildDie.roll">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the OpenD6 wild die mechanic.&quot;&quot;&quot;</span>
+        <span class="n">dice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">()</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">dice</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dice</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wild</span> <span class="o">=</span> <span class="s2">&quot;failure&quot;</span>
+        <span class="k">elif</span> <span class="n">dice</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wild</span> <span class="o">=</span> <span class="s2">&quot;success&quot;</span>
+            <span class="k">while</span> <span class="n">dice</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">:</span>
+                <span class="n">dice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">()</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">dice</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wild</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">total</span></div>
+</div>
 
 
 <div class="viewcode-block" id="UniformValue">
@@ -459,6 +503,8 @@
 <span class="sd">    Used with Aggregates that have a uniform distribution of instances.</span>
 
 <span class="sd">    This is compatible with :py:class:`Die` to permit aggregation of distinct domains.</span>
+
+<span class="sd">    This isn&#39;t obviously useful, really.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">low</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -512,35 +558,47 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mean of the uniform distribution.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">low</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">stdev</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="c1"># return statistics.stdev(range(self.low, self.high+1))</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Standard deviation of the uniform distribution.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
             <span class="mi">2</span>
             <span class="o">*</span> <span class="p">(((</span><span class="bp">self</span><span class="o">.</span><span class="n">low</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">low</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="p">)</span>
             <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">high</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">)</span>
         <span class="p">)</span>
 
+<div class="viewcode-block" id="UniformValue.roll">
+<a class="viewcode-back" href="../dice.html#dice.UniformValue.roll">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="p">)</span></div>
+</div>
 
 
 
+<div class="viewcode-block" id="Interaction">
+<a class="viewcode-back" href="../dice.html#dice.Interaction">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Interaction</span><span class="p">(</span><span class="n">Cmd</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An Interactive dice roller.&quot;&quot;&quot;</span>
 
     <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;[dice] &quot;</span>
+    <span class="n">namespace</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Die</span><span class="p">]</span>
 
+<div class="viewcode-block" id="Interaction.preloop">
+<a class="viewcode-back" href="../dice.html#dice.Interaction.preloop">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">preloop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="p">:</span> <span class="n">Die</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="p">:</span> <span class="n">Die</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">do_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Interaction.do_help">
+<a class="viewcode-back" href="../dice.html#dice.Interaction.do_help">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">do_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide some guidance.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">arg</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">do_help</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">do_help</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">defined_dice</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="n">help</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
@@ -556,20 +614,26 @@
                 <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Currently rolling </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> instance</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;s&#39;</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="si">!r}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">do_help</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">do_help</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">do_quit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Interaction.do_quit">
+<a class="viewcode-back" href="../dice.html#dice.Interaction.do_quit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">do_quit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Exit the the dice-roller.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
 
     <span class="n">do_exit</span> <span class="o">=</span> <span class="n">do_quit</span>
     <span class="n">do_EOF</span> <span class="o">=</span> <span class="n">do_quit</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">do_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Interaction.do_count">
+<a class="viewcode-back" href="../dice.html#dice.Interaction.do_count">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">do_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the number of times to roll the dice expression.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">arg</span><span class="p">:</span>
             <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rolling </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> times&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="p">:</span>
@@ -578,31 +642,45 @@
                 <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rolling </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> times&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="n">arg</span><span class="si">!r}</span><span class="s2"> value for count&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">do_expect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Interaction.do_expect">
+<a class="viewcode-back" href="../dice.html#dice.Interaction.do_expect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">do_expect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Display expected ranges of values of a dice expression.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">arg</span><span class="p">:</span>
-            <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;No dice expression provided&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">arg</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="p">:</span>
+            <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;No dice expression provided&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="p">))</span>
         <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;range: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="o">.</span><span class="n">min</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="o">.</span><span class="n">max</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mean: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="o">.</span><span class="n">mean</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;standard deviation: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="o">.</span><span class="n">stdev</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
+
+<div class="viewcode-block" id="Interaction.emptyline">
+<a class="viewcode-back" href="../dice.html#dice.Interaction.emptyline">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">emptyline</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Roll the most recently-parsed dice expression.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="p">:</span>
             <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Enter a valid dice expression. For help, type help.&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
             <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="o">.</span><span class="n">roll</span><span class="p">()</span>
             <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Interaction.default">
+<a class="viewcode-back" href="../dice.html#dice.Interaction.default">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse this line, assuming it&#39;s a dice expression.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">emptyline</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emptyline</span><span class="p">()</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -613,17 +691,23 @@
         <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;the dice expression [bold]</span><span class="si">{</span><span class="n">line</span><span class="si">!r}</span><span class="s2">[/bold] does not compute&quot;</span><span class="p">)</span>
 
+<div class="viewcode-block" id="Interaction.postcmd">
+<a class="viewcode-back" href="../dice.html#dice.Interaction.postcmd">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">postcmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> roll</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;s&#39;</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dice_expr</span><span class="si">!r}</span><span class="s2">] &quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;[dice] &quot;</span>
-        <span class="k">return</span> <span class="n">stop</span>
+        <span class="k">return</span> <span class="n">stop</span></div>
+</div>
+
 
 
 <span class="n">dice_app</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Typer</span><span class="p">()</span>
 
 
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../dice.html#dice.main">[docs]</a>
 <span class="nd">@dice_app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>
     <span class="n">interactive</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
@@ -652,6 +736,8 @@
     <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    CLI for dice.</span>
+
 <span class="sd">    Either provide a Python-syntax dice expression or start an interactive command loop.</span>
 <span class="sd">    The Python syntax means the `*` is required for &#39;3*D6&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -690,7 +776,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
                 <span class="n">output</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">roll</span><span class="p">()</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -724,6 +811,7 @@
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../main.html">main</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../plot.html">plot.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../terrain.html">terrain-tk.py and notebooks/terrain</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../language.html">language.py</a></li>

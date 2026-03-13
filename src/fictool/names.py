@@ -9,7 +9,7 @@ import re
 
 from typing import Iterator
 
-from data.words import words
+from .data.words import words
 
 
 def corpus_iter() -> Iterator[str]:

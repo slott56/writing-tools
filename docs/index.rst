@@ -19,6 +19,7 @@ Understand them and extend them.
     :maxdepth: 2
     :caption: Contents:
 
+    main
     plot
     terrain
     language

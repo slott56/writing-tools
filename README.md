@@ -22,3 +22,10 @@ They're seeds for thought.
 
 7.  ``dice.py`` a DSL for "dice expressions".
 
+A test suite is available. 
+To make life simpler, install **uv** (https://docs.astral.sh/uv/getting-started/installation/).
+With ``uv`` the various version virtual environments will be built automatically.
+
+..  code-block:: bash
+
+    % uv tool run tox run

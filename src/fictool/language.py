@@ -81,30 +81,40 @@ from typing import NamedTuple, TypeVar, List, Tuple, Dict, Callable, Union
 
 CT = TypeVar("CT")
 
+
 def weighted_choice(source: List[Tuple[CT, int]]) -> CT:
     """Given [(string, int), ...] weighted strings, pick a string."""
     choices, weights = zip(*source)
     cumulative_dist = list(itertools.accumulate(weights))
-    selection = random.random()*cumulative_dist[-1]
+    selection = random.random() * cumulative_dist[-1]
     return choices[bisect.bisect(cumulative_dist, selection)]
 
+
 def test_weighted_choice_1() -> None:
-    source = [('a', 1), ('b', 1), ('c', 1), ('d', 1)]
+    source = [("a", 1), ("b", 1), ("c", 1), ("d", 1)]
     random.seed(42)
     examples = [weighted_choice(source) for _ in range(1000)]
-    assert examples[:10] == ['c', 'a', 'b', 'a', 'c', 'c', 'd', 'a', 'b', 'a']
+    assert examples[:10] == ["c", "a", "b", "a", "c", "c", "d", "a", "b", "a"]
     from collections import Counter
+
     distribution = Counter(examples)
-    assert distribution.most_common() == [('c', 263), ('d', 257), ('b', 242), ('a', 238)]
+    assert distribution.most_common() == [
+        ("c", 263),
+        ("d", 257),
+        ("b", 242),
+        ("a", 238),
+    ]
+
 
 def test_weighted_choice_2() -> None:
-    source = [('a', 1), ('b', 2), ('c', 4), ('d', 8)]
+    source = [("a", 1), ("b", 2), ("c", 4), ("d", 8)]
     random.seed(42)
     examples = [weighted_choice(source) for _ in range(1000)]
-    assert examples[:10] == ['d', 'a', 'c', 'c', 'd', 'd', 'd', 'b', 'c', 'a']
+    assert examples[:10] == ["d", "a", "c", "c", "d", "d", "d", "b", "c", "a"]
     from collections import Counter
+
     distribution = Counter(examples)
-    assert distribution.most_common() == [('d', 551), ('c', 271), ('b', 126), ('a', 52)]
+    assert distribution.most_common() == [("d", 551), ("c", 271), ("b", 126), ("a", 52)]
 
 
 ### Lexicon.
@@ -123,7 +133,7 @@ class WordMaker:
     """
 
     # https://www.math.cornell.edu/~mec/2003-2004/cryptography/subs/digraphs.html
-    digraph_text = dedent('''\
+    digraph_text = dedent("""\
     Digraph	Count	 	Digraph	Frequency
     th	5532	 	th	1.52
     he	4657	 	he	1.28
@@ -164,10 +174,10 @@ class WordMaker:
     ra	137	 	ra	0.04
     ld	64	 	ld	0.02
     ur	60	 	ur	0.02
-    ''')
+    """)
 
     # https://en.wikipedia.org/wiki/Letter_frequency
-    first_letter_text = dedent('''\
+    first_letter_text = dedent("""\
     Letter	Frequency
     z	0.034%
     y	1.620%
@@ -195,7 +205,7 @@ class WordMaker:
     c	3.511%
     b	4.702%
     a	11.602%
-    ''')
+    """)
 
     # Real data: http://norvig.com/mayzner.html
     # Handy approximation
@@ -204,7 +214,7 @@ class WordMaker:
     # (x, y) = (12, 20)
     # m = Fraction(200-20)/Fraction(2-12) = -18
     # b = 200-m*2 = 236
-    lengths = [(x, 236-18*x) for x in range(2,13)]
+    lengths = [(x, 236 - 18 * x) for x in range(2, 13)]
 
     def __init__(self, make_seed: Callable[[str], int]) -> None:
         """
@@ -219,10 +229,9 @@ class WordMaker:
 
     def load_digraph_markov(self) -> None:
         source_file = io.StringIO(self.digraph_text)
-        reader = csv.DictReader(source_file, delimiter='\t', skipinitialspace=True)
+        reader = csv.DictReader(source_file, delimiter="\t", skipinitialspace=True)
         self.digraphs: WeightedChoices = list(
-            (row['Digraph'], int(row['Count']))
-            for row in reader
+            (row["Digraph"], int(row["Count"])) for row in reader
         )
 
         # The digraphs -- alone -- aren't very English like.
@@ -235,8 +244,10 @@ class WordMaker:
 
     def load_first_letters(self) -> None:
         source_file = io.StringIO(self.first_letter_text)
-        reader = csv.DictReader(source_file, delimiter='\t', skipinitialspace=True)
-        self.first_letters = list((row['Letter'], 1000*float(row['Frequency'][:-1])) for row in reader)
+        reader = csv.DictReader(source_file, delimiter="\t", skipinitialspace=True)
+        self.first_letters = list(
+            (row["Letter"], 1000 * float(row["Frequency"][:-1])) for row in reader
+        )
 
     def word(self, seed: str = "") -> str:
         """Expand weighted Markov chains through the digraphs."""
@@ -258,30 +269,45 @@ class WordMaker:
                 target_length += 2
                 c_1, c_2 = weighted_choice(self.digraphs)
                 w.extend(["'", c_1, c_2])
-        return ''.join(w)
+        return "".join(w)
 
 
 def naive_seed(original: str) -> int:
     """Transform source word into RNG seed. Seems to have too many collisions."""
-    return sum(original.encode('ascii'))
+    return sum(original.encode("ascii"))
 
 
 def hash_seed(original: str) -> int:
     """Transform source word into RNG seed."""
-    return sum(hashlib.sha1(original.encode('ascii')).digest())
+    return sum(hashlib.sha1(original.encode("ascii")).digest())
 
 
 def test_wordmaker() -> None:
     m = WordMaker(lambda n: n)
     words = [m.word(n) for n in range(1, 100, 10)]
-    assert words == ['is', 'aesth', 'to', 'he', 'tere', 'tnt', 'cesth', 'yeng', 'jonde', 'in']
+    assert words == [
+        "is",
+        "aesth",
+        "to",
+        "he",
+        "tere",
+        "tnt",
+        "cesth",
+        "yeng",
+        "jonde",
+        "in",
+    ]
     random.seed(42)
     lexicon = [m.word() for _ in range(5000)]
     from collections import Counter
+
     first = Counter(w[0] for w in lexicon)
-    pct = sorted(((letter, 100*count/5000) for letter, count in first.most_common()), reverse=True)
-    assert pct[:5] == [('z', 0.02), ('y', 1.2), ('x', 0.02), ('w', 4.62), ('v', 0.74)]
-    assert pct[-5:] == [('e', 4.7), ('d', 2.4), ('c', 3.38), ('b', 4.22), ('a', 11.22)]
+    pct = sorted(
+        ((letter, 100 * count / 5000) for letter, count in first.most_common()),
+        reverse=True,
+    )
+    assert pct[:5] == [("z", 0.02), ("y", 1.2), ("x", 0.02), ("w", 4.62), ("v", 0.74)]
+    assert pct[-5:] == [("e", 4.7), ("d", 2.4), ("c", 3.38), ("b", 4.22), ("a", 11.22)]
 
 
 ### Grammar.
@@ -293,8 +319,9 @@ def test_wordmaker() -> None:
 
 class Tag(NamedTuple):
     """Tagged text that forms a tree. (Similar to NLTK.Tree.)"""
+
     pos: str  # Part of Speech. "S", "NP", "VP", "ADVP", "MD", "TV", "IV", "DatV", "SV", "PP", "IN"
-    words: list['str | Tag']  # Terminal or Tag
+    words: list["str | Tag"]  # Terminal or Tag
 
     @staticmethod
     def from_text(source: str) -> "Tag":
@@ -306,7 +333,7 @@ class Tag(NamedTuple):
 
     @staticmethod
     def from_symbols(symbols: List[str]) -> "Tag":
-        assert symbols.popleft() == "(", f'Invalid structure {symbols}'
+        assert symbols.popleft() == "(", f"Invalid structure {symbols}"
         tag = symbols.popleft()
         words = []
         while symbols[0] != ")":
@@ -314,7 +341,7 @@ class Tag(NamedTuple):
                 words.append(Tag.from_symbols(symbols))
             else:
                 words.append(symbols.popleft())
-        assert symbols.popleft() == ")", f'Invalid structure {symbols}'
+        assert symbols.popleft() == ")", f"Invalid structure {symbols}"
         return Tag(tag, words)
 
     def __str__(self) -> str:
@@ -340,17 +367,26 @@ class Tag(NamedTuple):
 
 
 def test_tag() -> None:
-    src = '(S (VP (TV kill) (NP (DET the) (NP mage))))'
+    src = "(S (VP (TV kill) (NP (DET the) (NP mage))))"
     t = Tag.from_text(src)
-    assert t == Tag(pos='S', words=[
-            Tag(pos='VP', words=[
-                Tag(pos='TV', words=['kill']),
-                Tag(pos='NP', words=[
-                    Tag(pos='DET', words=['the']),
-                    Tag(pos='NP', words=['mage'])
-                ])
-            ])
-        ])
+    assert t == Tag(
+        pos="S",
+        words=[
+            Tag(
+                pos="VP",
+                words=[
+                    Tag(pos="TV", words=["kill"]),
+                    Tag(
+                        pos="NP",
+                        words=[
+                            Tag(pos="DET", words=["the"]),
+                            Tag(pos="NP", words=["mage"]),
+                        ],
+                    ),
+                ],
+            )
+        ],
+    )
     assert str(t) == "(S (VP (TV kill) (NP (DET the) (NP mage))))"
     assert t.clean() == "kill the mage"
 
@@ -365,6 +401,7 @@ class TransformRule:
 
     ..  todo:: Expand placeholders to include transformations like stemming a word.
     """
+
     def __init__(self, source: str, target: str):
         self.tag_source = Tag.from_text(source)
         self.tag_target = Tag.from_text(target)
@@ -374,7 +411,9 @@ class TransformRule:
         if some_content.pos == tag_source.pos:
             # Descend to see if internal structure inside *also* matches
             child_matches = []
-            for src_child, content_child in itertools.zip_longest(tag_source.words, some_content.words):
+            for src_child, content_child in itertools.zip_longest(
+                tag_source.words, some_content.words
+            ):
                 if not src_child or not content_child:
                     # lengths do not match
                     child_matches.append(False)
@@ -395,7 +434,9 @@ class TransformRule:
             return all(child_matches)
         return False
 
-    def placeholders(self, tag_source: Tag, some_content: Tag, variables: Dict[str, Union[Tag, str]]) -> None:
+    def placeholders(
+        self, tag_source: Tag, some_content: Tag, variables: Dict[str, Union[Tag, str]]
+    ) -> None:
         """
         Given a pattern and tagged content, locate and assign values to $ placeholders.
         This does a recursive depth-first search.
@@ -406,7 +447,7 @@ class TransformRule:
             if isinstance(src_child, str):
                 if src_child.startswith("$"):
                     variables[src_child] = content_child
-            else: # Tag, e.g. ("PP", [words])
+            else:  # Tag, e.g. ("PP", [words])
                 self.placeholders(src_child, content_child, variables)
 
     def emit(self, tag_target: Tag, variables: Dict[str, Union[Tag, str]]) -> Tag:
@@ -416,9 +457,9 @@ class TransformRule:
             if isinstance(w, str):
                 if w.startswith("$"):
                     rewrite.words.append(variables.get(w, Tag("X", ["?"])))
-                else: # Literal
+                else:  # Literal
                     rewrite.words.append(w)
-            else: # Tag
+            else:  # Tag
                 rewrite.words.append(self.emit(w, variables))
         return rewrite
 
@@ -448,23 +489,27 @@ class TransformRule:
 
         return rewrite
 
+
 def test_transform_rule():
     rule1 = TransformRule("(S (NP $n) (VP $v $n2))", "(S (VP $v) (NP $n) (PP a $n2))")
     sa = Tag.from_text("(S (NP I) (VP am (NP groot)))")
     xform_sa1 = rule1.apply(sa)
-    assert xform_sa1 == Tag(pos='S', words=[
-        Tag(pos='VP', words=["am"]),
-        Tag(pos='NP', words=["I"]),
-        Tag(pos='PP', words=[
-            "a",
-            Tag(pos='NP', words=["groot"])
-        ])
-    ])
+    assert xform_sa1 == Tag(
+        pos="S",
+        words=[
+            Tag(pos="VP", words=["am"]),
+            Tag(pos="NP", words=["I"]),
+            Tag(pos="PP", words=["a", Tag(pos="NP", words=["groot"])]),
+        ],
+    )
     assert str(xform_sa1) == "(S (VP am) (NP I) (PP a (NP groot)))"
     assert xform_sa1.clean() == "am I a groot"
 
+
 def test_rule_pair():
-    rule1 = TransformRule("(S (NP (DET $d) (N $n)) (VP $v $n2))", "(S (VP $v) (NP $n $d) $n2)")
+    rule1 = TransformRule(
+        "(S (NP (DET $d) (N $n)) (VP $v $n2))", "(S (VP $v) (NP $n $d) $n2)"
+    )
     rule2 = TransformRule("(VP $x (ADVP (NP $y)))", "(VP $x (PP with (NP $y)))")
     sb = Tag.from_text("(S (NP (DET the) (N mage)) (VP dies (ADVP (NP slowly))))")
     xform_sb2 = rule2.apply(sb)
@@ -474,6 +519,7 @@ def test_rule_pair():
 
 
 # Main App(s)
+
 
 def translate(source: str, maker: WordMaker) -> tuple[Tag, list[str]]:
     """
@@ -491,8 +537,7 @@ def translate(source: str, maker: WordMaker) -> tuple[Tag, list[str]]:
     """
 
     # Special case of no-determiner.
-    rule1c = TransformRule("(S (NP $n) (VP $v $n2))",
-                          "(S (VP $v) (NP $n) (PP a $n2))")
+    rule1c = TransformRule("(S (NP $n) (VP $v $n2))", "(S (VP $v) (NP $n) (PP a $n2))")
     phrase = Tag.from_text(source)
     xform_s1 = rule1c.apply(phrase)
 
@@ -501,13 +546,28 @@ def translate(source: str, maker: WordMaker) -> tuple[Tag, list[str]]:
 
 
 def get_options(args: List[str] = sys.argv[1:]) -> argparse.Namespace:
-    seed_algo = {'h': hash_seed, 'hash': hash_seed,
-        'n': naive_seed, 'naive': naive_seed}
+    seed_algo = {
+        "h": hash_seed,
+        "hash": hash_seed,
+        "n": naive_seed,
+        "naive": naive_seed,
+    }
     parser = argparse.ArgumentParser()
-    parser.add_argument('-a', '--algorithm', type=str, action='store', default='hash')
-    parser.add_argument('-g', '--generate', type=int, action='store', default=None, help="spew words")
-    parser.add_argument('-w', '--words', type=int, action='store', default=None, help="translate words")
-    parser.add_argument('-t', '--translate', type=str, action='store', default=None, help="translate a tagged phrase")
+    parser.add_argument("-a", "--algorithm", type=str, action="store", default="hash")
+    parser.add_argument(
+        "-g", "--generate", type=int, action="store", default=None, help="spew words"
+    )
+    parser.add_argument(
+        "-w", "--words", type=int, action="store", default=None, help="translate words"
+    )
+    parser.add_argument(
+        "-t",
+        "--translate",
+        type=str,
+        action="store",
+        default=None,
+        help="translate a tagged phrase",
+    )
     options = parser.parse_args(args)
     try:
         options.algorithm = seed_algo[options.algorithm]
@@ -531,7 +591,8 @@ def main() -> None:
 
     if options.translate is not None:
         tagged, words = translate(options.translate, maker)
-        print(options.translate, tagged.clean(), words )
+        print(options.translate, tagged.clean(), words)
+
 
 if __name__ == "__main__":
     main()

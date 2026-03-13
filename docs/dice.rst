@@ -16,8 +16,34 @@ Implementation
 
 ..  automodule:: dice
 
+Die
+----
+
 ..  autoclass:: dice.Die
+    :members:
+
+Wild Die
+--------
+
+..  autoclass:: dice.WildDie
+    :members:
+
+UniformValue
+-------------
 
 ..  autoclass:: dice.UniformValue
+    :members:
+
+Interaction
+-----------
+
+..  autoclass:: dice.Interaction
+    :members:
+
+CLI
+----
+
+..  autofunction:: dice.main
+
 
 
