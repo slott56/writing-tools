@@ -10,11 +10,11 @@ from typing import Annotated
 from rich import print
 import typer
 
-from names import generate_names
-from features import generate_features
-from dice import dice_app
+from .names import generate_names
+from .features import generate_features
+from .dice import dice_app
 
-VERSION = "0.3.0"
+VERSION = "2026.03.13.dev1"
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -40,7 +40,7 @@ def highlight_list_items(items: list[str], *, color: str = "green") -> str:
     help="Select n random words from the English-language corpus and print them, one per line.",
 )
 def words(n: Annotated[int, typer.Argument()] = 6) -> None:
-    eprint(f"Selecting [green]{n}[/green] random words...\n", file=stderr)
+    eprint(f"Selecting [green]{n}[/green] random words...\n")
 
     names = generate_names(n)
 
@@ -80,6 +80,7 @@ def features(
     for table in character_tables:
         print(table)
         print()
+
 
 app.add_typer(dice_app, name="dice")
 

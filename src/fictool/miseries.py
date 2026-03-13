@@ -5,12 +5,13 @@ See https://mrob.com/pub/epist/buddhism.html
 
 Alternative...
 
-{eye, ear, nose, tongue, body, mind} × {gladness, sadness, equanimity} × {household life, renunciation} × {past, future, present} 
+{eye, ear, nose, tongue, body, mind} × {gladness, sadness, equanimity} × {household life, renunciation} × {past, future, present}
 
 """
+
 import random
 
-miseries="""
+miseries = """
 abuse; aggression; ambition; anger; arrogance; baseness; blasphemy; 
 calculation; callousness; capriciousness (unaccountable changes of mood or
 behavior); 
@@ -49,13 +50,15 @@ voluptuousness; wrath
 """
 
 # Reassemble a single string, then parse and clean
-miseries_list = [item.strip() 
-    for item in " ".join(filter(None, miseries.splitlines())).split(';')
+miseries_list = [
+    item.strip() for item in " ".join(filter(None, miseries.splitlines())).split(";")
 ]
+
 
 def miseries(n=5):
     for i in range(n):
         print(random.choice(miseries_list))
+
 
 if __name__ == "__main__":
     miseries()

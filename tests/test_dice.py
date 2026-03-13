@@ -45,5 +45,3 @@ def test_app_expr_count(cli_runner):
     assert result.exit_code == 0
     assert result.output == "10\n13\n12\n15\n13\n"
 
-def test_cli():
-    pass

@@ -73,6 +73,7 @@ Animation is fun -- see the empire build.
     python terrain-tk.py --seed=x
 
 """
+
 import abc
 from collections.abc import Iterator, Iterable
 from functools import cache, reduce
@@ -96,6 +97,7 @@ from matplotlib.lines import Line2D
 
 
 ### 1. HexGrid
+
 
 class HexGrid:
     """
@@ -152,8 +154,8 @@ class HexGrid:
         """
         Random cell; if x is odd, y is constrained to odd values.
         """
-        x = random.randint(0, self.columns-1)
-        y = random.choice(range(x%2, self.rows, 2))
+        x = random.randint(0, self.columns - 1)
+        y = random.choice(range(x % 2, self.rows, 2))
         return (x, y)
 
     @staticmethod
@@ -175,10 +177,12 @@ class HexGrid:
         """
         letter1, letter2 = divmod(row, 26)
         if letter1 == 0:
-          row_label = string.ascii_uppercase[letter2]
+            row_label = string.ascii_uppercase[letter2]
         else:
-          row_label = string.ascii_uppercase[letter1-1] + string.ascii_uppercase[letter2]
-        return f"{col+1}{row_label}"
+            row_label = (
+                string.ascii_uppercase[letter1 - 1] + string.ascii_uppercase[letter2]
+            )
+        return f"{col + 1}{row_label}"
 
     @staticmethod
     def adjacent(col: int, row: int, direction: int) -> tuple[int, int]:
@@ -194,11 +198,15 @@ class HexGrid:
         ['4D', '4B', '3A', '2B', '2D', '3E']
         """
         doubleheight_directions = [
-          (+1, +1), (+1, -1), ( 0, -2),
-          (-1, -1), (-1, +1), ( 0, +2),
+            (+1, +1),
+            (+1, -1),
+            (0, -2),
+            (-1, -1),
+            (-1, +1),
+            (0, +2),
         ]
         x_d, y_d = doubleheight_directions[direction]
-        return col+x_d, row+y_d
+        return col + x_d, row + y_d
 
     @cache
     def edge(self, x: int, y: int) -> bool:
@@ -224,8 +232,12 @@ class HexGrid:
         >>> hg.edge(3, 7)
         True
         """
-        left_right = x == 0 or x == self.columns-1
-        top_bottom = (y == 0 or y == self.rows-2) if x%2 == 0 else (y==1 or y == self.rows-1)
+        left_right = x == 0 or x == self.columns - 1
+        top_bottom = (
+            (y == 0 or y == self.rows - 2)
+            if x % 2 == 0
+            else (y == 1 or y == self.rows - 1)
+        )
         return top_bottom or left_right
 
     @cache
@@ -243,12 +255,13 @@ class HexGrid:
         >>> hg.within(4, 8)
         False
         """
-        left_right = (0 <= x <= self.columns-1)
-        top_bottom = (0 <= y <= self.rows-2) if x%2 == 0 else (1 <= y <= self.rows-1)
+        left_right = 0 <= x <= self.columns - 1
+        top_bottom = (
+            (0 <= y <= self.rows - 2) if x % 2 == 0 else (1 <= y <= self.rows - 1)
+        )
         inside = top_bottom and left_right
         # print(f"within({x}, {y}) -> {inside}")
         return inside
-
 
 
 ### 2. Terrain
@@ -287,7 +300,12 @@ class City:
         shift = 0.30  # 30% lighter.
         rgb = mcolors.to_rgb(mcolors.get_named_colors_mapping()[color])
         self.city_color = mcolors.to_hex(rgb)
-        self.terrain_color = mcolors.to_hex(mcolors.hsv_to_rgb(mcolors.rgb_to_hsv(rgb) * [1.0, (1-shift), (1-shift)] + [0.0, 0.0, shift]))
+        self.terrain_color = mcolors.to_hex(
+            mcolors.hsv_to_rgb(
+                mcolors.rgb_to_hsv(rgb) * [1.0, (1 - shift), (1 - shift)]
+                + [0.0, 0.0, shift]
+            )
+        )
         self.location: tuple[int, int] | None = None
         self.domain: set[tuple[int, int]] = set()
 
@@ -312,13 +330,10 @@ class City:
         # for d in self.domain:
         #    candidates |= set(self.hg.adjacent(*d, dir) for dir in range(6))
         candidates = set(
-            self.hg.adjacent(*d, dir)
-            for d in self.domain
-            for dir in range(6)
+            self.hg.adjacent(*d, dir) for d in self.domain for dir in range(6)
         )
         final_locations = candidates - set(self.domain)
         return final_locations
-
 
 
 class Empire:
@@ -333,6 +348,7 @@ class Empire:
     >>> sorted(e.occupied())
     [(1, 1), (1, 3), (2, 0), (2, 2), (2, 4), (3, 1), (3, 3)]
     """
+
     def __init__(self, hexgrid):
         self.hg = hexgrid
         self.cities = []
@@ -340,26 +356,37 @@ class Empire:
     def add_city(self, city: City) -> None:
         x, y = self.hg.random()
         while self.hg.edge(x, y):
-              x, y = self.hg.random()
-        while not self.hg.edge(x, y) and (x,y) in {c.location for c in self.cities}:
-              x, y = self.hg.random()
+            x, y = self.hg.random()
+        while not self.hg.edge(x, y) and (x, y) in {c.location for c in self.cities}:
+            x, y = self.hg.random()
         city.place(x, y)
         self.cities.append(city)
 
     def occupied(self) -> set[tuple[int, int]]:
         occ = set()
         for c in self.cities:
-          occ.add(c.location)
-          occ |= set(c.domain)
+            occ.add(c.location)
+            occ |= set(c.domain)
         return occ
 
 
 COLORS = [
-  'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple',
-  'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan'
+    "tab:blue",
+    "tab:orange",
+    "tab:green",
+    "tab:red",
+    "tab:purple",
+    "tab:brown",
+    "tab:pink",
+    "tab:gray",
+    "tab:olive",
+    "tab:cyan",
 ]
 
-def generate(hexgrid: HexGrid, seed: int, cities: int = 5, generations: int = 48, fill: int = 1) -> Iterator[Empire]:
+
+def generate(
+    hexgrid: HexGrid, seed: int, cities: int = 5, generations: int = 48, fill: int = 1
+) -> Iterator[Empire]:
     """Build the Empire."""
 
     random.seed(seed)
@@ -404,7 +431,9 @@ def generate(hexgrid: HexGrid, seed: int, cities: int = 5, generations: int = 48
             # print(f"\nfilling hole {hexgrid.cell_name(*h)}")
             neighbors = []
             for c in empire.cities:
-                adjacent = [d for d in range(6) if hexgrid.adjacent(*h, d) in c.occupies()]
+                adjacent = [
+                    d for d in range(6) if hexgrid.adjacent(*h, d) in c.occupies()
+                ]
                 if len(adjacent) == 6:
                     neighbors.append((c, len(adjacent)))
                 else:
@@ -415,7 +444,9 @@ def generate(hexgrid: HexGrid, seed: int, cities: int = 5, generations: int = 48
             if sum(cells for city, cells in neighbors) >= 5:
                 # May be some dispute here, we resolve it with a random choice.
                 # TODO: Disputes get blended color and a fill pattern.
-                assigned_city = random.choice([city for city, cells in neighbors if cells != 0])
+                assigned_city = random.choice(
+                    [city for city, cells in neighbors if cells != 0]
+                )
                 assigned_city.add(*h)
             else:
                 # Incomplete surround. (May be two adjacent holes.)
@@ -431,16 +462,15 @@ def generate(hexgrid: HexGrid, seed: int, cities: int = 5, generations: int = 48
 
 class Drawing:
     def __init__(self, grid_height: int, title: str = "Empire Builder") -> None:
-        self.r : float
+        self.r: float
 
     def to_screen_x_y(self, col: int, row: int) -> tuple[float, float]:
-        x_o = self.r * 3/2 * col + self.r
-        y_o = self.r * sqrt(3)/2 * row + self.r
+        x_o = self.r * 3 / 2 * col + self.r
+        y_o = self.r * sqrt(3) / 2 * row + self.r
         return x_o, y_o
 
     @abc.abstractmethod
-    def paint(self, col: int, row: int, fill: str) -> None:
-        ...
+    def paint(self, col: int, row: int, fill: str) -> None: ...
 
     def city(self, city: City) -> None:
         # print(f"City {city.city_color} at {HexGrid.cell_name(*city.location)} = {city.location}")
@@ -456,14 +486,14 @@ class Drawing:
         pass
 
     @abc.abstractmethod
-    def show(self) -> None:
-        ...
+    def show(self) -> None: ...
 
 
 class TurtleDrawing(Drawing):
     """
     While this (mostly) works, it is really slow.
     """
+
     def __init__(self, grid: HexGrid, title: str = "Empire Builder") -> None:
         self.tg = turtle.Turtle()
         screen = self.tg.getscreen()
@@ -475,7 +505,7 @@ class TurtleDrawing(Drawing):
         ax_w = 2 * grid.columns * self.r
         ax_h = grid.rows * sqrt(3) * self.r / 2  # Interleaved.
 
-        coordinates = [- self.r / 2, - self.r / 2, ax_w, ax_w]
+        coordinates = [-self.r / 2, -self.r / 2, ax_w, ax_w]
         screen.setworldcoordinates(*coordinates)
         screen.delay(None)
         self.tg.degrees()
@@ -488,8 +518,8 @@ class TurtleDrawing(Drawing):
         Expect E-facing as 0°. Turn Left to go around.
         Assumes X is offset by r/2 so the 0, 0 origin is visible.
         """
-        x_o = self.r * 3/2 * col + self.r
-        y_o = self.r * sqrt(3)/2 * row + self.r
+        x_o = self.r * 3 / 2 * col + self.r
+        y_o = self.r * sqrt(3) / 2 * row + self.r
         # self.tg.teleport(x_o, y_o)  # 3.12
         self.tg.penup()
         self.tg.goto(x_o, y_o)
@@ -510,8 +540,8 @@ class TurtleDrawing(Drawing):
 
         label = HexGrid.cell_name(col, row)
 
-        x = self.r * 3/2 * col
-        y = self.r * sqrt(3)/2 * row
+        x = self.r * 3 / 2 * col
+        y = self.r * sqrt(3) / 2 * row
 
         # Adjust for font height and label size.
         # self.tg.teleport(x + self.r, y + self.r/2) # 3.12
@@ -530,6 +560,7 @@ class PyPlotDrawing(Drawing):
     Draw using matplotlib.pyplot.
 
     """
+
     def __init__(self, grid: HexGrid, title: str = "Empire Builder") -> None:
         self.fig = plt.figure(title, figsize=(4.0, 4.0), layout=None)
 
@@ -542,7 +573,7 @@ class PyPlotDrawing(Drawing):
         ax_w = 2 * grid.columns * self.r
         ax_h = grid.rows * sqrt(3) * self.r / 2  # Interleaved.
 
-        coordinates = (- self.r / 2, - self.r / 2, ax_w, ax_w)
+        coordinates = (-self.r / 2, -self.r / 2, ax_w, ax_w)
 
         self.ax = self.fig.add_axes(coordinates, frameon=False, aspect=1)
         self.ax.set_axis_off()
@@ -559,14 +590,17 @@ class PyPlotDrawing(Drawing):
             label = grid.cell_name(col, row)
             self.fill_colors[col, row] = "w"
             self.cells[col, row] = self.ax.fill(x, y, self.fill_colors[col, row])
-            self.borders[col, row] = self.ax.plot(x, y, '-k', lw=.75)
-            lab_x = self.r * 3/2 * col
-            lan_y = self.r * sqrt(3)/2 * row
+            self.borders[col, row] = self.ax.plot(x, y, "-k", lw=0.75)
+            lab_x = self.r * 3 / 2 * col
+            lan_y = self.r * sqrt(3) / 2 * row
             self.labels[col, row] = self.ax.text(
-                lab_x + self.r, lan_y + self.r/2,
+                lab_x + self.r,
+                lan_y + self.r / 2,
                 label,
-                family='sans-serif', size='x-small', color="tab:gray",
-                horizontalalignment='center'
+                family="sans-serif",
+                size="x-small",
+                color="tab:gray",
+                horizontalalignment="center",
             )
 
         plt.ion()
@@ -579,8 +613,8 @@ class PyPlotDrawing(Drawing):
         >>> PyPlotDrawing.hexpath(1.0, 2, 2)
         [(5.0, 2.73205), (4.5, 3.59808), (3.5, 3.59808), (3.0, 2.73205), (3.5, 1.86603), (4.5, 1.86603), (5.0, 2.73205)]
         """
-        x_o = r * 3/2 * col + r
-        y_o = r * sqrt(3)/2 * row + r
+        x_o = r * 3 / 2 * col + r
+        y_o = r * sqrt(3) / 2 * row + r
         path = []
         for side in range(0, 6):
             theta = radians(60 * side)
@@ -596,10 +630,7 @@ class PyPlotDrawing(Drawing):
         """
         self.fill_colors[col, row] = fill
         for a in self.cells[col, row]:
-            a.set(
-                fill=True,
-                color=fill
-            )
+            a.set(fill=True, color=fill)
 
     def city(self, city: City) -> None:
         # print(f"City {city.city_color} at {HexGrid.cell_name(*city.location)} = {city.location}")
@@ -624,6 +655,7 @@ class PyPlotDrawing(Drawing):
 
 # Option 1 -- Animated.
 
+
 def show_empire_1(drawing: Drawing, generator: Iterable[Empire]) -> Empire:
     empire_iter = iter(generator)
     e_0 = next(empire_iter)
@@ -635,6 +667,7 @@ def show_empire_1(drawing: Drawing, generator: Iterable[Empire]) -> Empire:
 
 
 # Option 2 -- No animation.
+
 
 def show_empire_2(drawing: Drawing, generator: Iterable[Empire]) -> Empire:
     sequence = list(generator)
@@ -650,7 +683,9 @@ def show_empire_2(drawing: Drawing, generator: Iterable[Empire]) -> Empire:
 @task()
 def test(c, verbose=False) -> None:
     import doctest
+
     doctest.testmod(verbose=verbose)
+
 
 @task(test)
 def demo(c) -> None:
@@ -663,18 +698,30 @@ def demo(c) -> None:
     drawing.city(c)
     drawing.show()
 
+
 @task(test)
-def empire(c, animation: bool = True, seed: int | None = 12991971503914480054, cities: int = 5, generations: int = 48, fill: int = 1) -> None:
+def empire(
+    c,
+    animation: bool = True,
+    seed: int | None = 12991971503914480054,
+    cities: int = 5,
+    generations: int = 48,
+    fill: int = 1,
+) -> None:
     if not seed:
-        seed = reduce(lambda a, b: a*256 + b, os.urandom(4))
+        seed = reduce(lambda a, b: a * 256 + b, os.urandom(4))
     if cities > 10:
         raise ValueError("Cities must be between 1 and 10")
-    print(f"python {Path(__file__).name} empire --seed={seed} --cities={cities} --generations={generations}")
+    print(
+        f"python {Path(__file__).name} empire --seed={seed} --cities={cities} --generations={generations}"
+    )
     hexgrid = HexGrid(18)
     drawing = PyPlotDrawing(hexgrid, f"Empire {seed}")
     # drawing = TurtleDrawing(hexgrid)
 
-    generator = generate(hexgrid, seed, cities=cities, generations=generations, fill=fill)
+    generator = generate(
+        hexgrid, seed, cities=cities, generations=generations, fill=fill
+    )
     if animation:
         show_empire_1(drawing, generator)
     else:
@@ -688,7 +735,6 @@ if __name__ == "__main__":
     tasks.add_task(demo)
     tasks.add_task(empire)
 
-    program = Program(namespace=tasks, version='1.0')
+    program = Program(namespace=tasks, version="1.0")
 
     program.run()
-

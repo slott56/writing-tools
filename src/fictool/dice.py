@@ -373,7 +373,9 @@ class Die:
 
     def kh(self, keep: int | None = None) -> Self:
         """Creates new Die with the keep highest "keep" values."""
-        return self.__class__(self.faces, n=self.n, adj=self.adj, keep=keep or self.n - 1)
+        return self.__class__(
+            self.faces, n=self.n, adj=self.adj, keep=keep or self.n - 1
+        )
 
 
 D4 = Die(4)
@@ -414,6 +416,7 @@ class WildDie(Die):
     >>> dice.wild
     ''
     """
+
     wild: str
 
     def kh(self, keep: int | None = None) -> Self:
@@ -437,6 +440,7 @@ class WildDie(Die):
         else:
             self.wild = ""
         return total
+
 
 class UniformValue(Die):
     """
@@ -611,6 +615,8 @@ class Interaction(Cmd):
         else:
             self.prompt = "[dice] "
         return stop
+
+
 namespace = {
     "D4": D4,
     "D6": D6,
@@ -628,12 +634,14 @@ dice_expr_arg = typer.Argument(
     help="Dice expression, example: '2*D6+3' (quotes are *required*)"
 )
 
+
 @dice_app.command()
 def interactive():
     """An Interactice dice roller. Enter help at the [dice] prompt."""
     cmd = Interaction()
     cmd.namespace = namespace
     cmd.cmdloop("Enter a Python-syntax dice expressions, like 3*D6+2.")
+
 
 def dice_expr(expression: str) -> Die:
     try:
@@ -642,8 +650,9 @@ def dice_expr(expression: str) -> Die:
     except BaseException as err:
         sys.exit(f"The dice expression {expression!r} does not compute")
 
+
 @dice_app.command()
-def expected(expr: Annotated[str, dice_expr_arg]= ""):
+def expected(expr: Annotated[str, dice_expr_arg] = ""):
     """Compute the min, max, mean, and standard deviation for a dice expression."""
     d = dice_expr(expr)
     print(repr(d))
@@ -658,7 +667,7 @@ def roll(
     count: Annotated[
         int, typer.Option("--count", "-c", help="number of times to roll")
     ] = 1,
-    ):
+):
     """Roll the handful of dice described by a dice expression.
     Use the --count option to roll multiple times.
     """
@@ -675,7 +684,7 @@ def set_seed(
         str | None,
         typer.Option("--seed", help="Impose a seed for reproducible random numbers"),
     ] = None,
-    ):
+):
     """
     CLI for dice expressions, like 3*D6+2.
 
@@ -686,7 +695,6 @@ def set_seed(
     """
     if seed_value:
         seed(seed_value.encode("ascii"))
-
 
 
 if __name__ == "__main__":

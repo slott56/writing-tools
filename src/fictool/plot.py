@@ -75,6 +75,7 @@ In a narrow, technical sense the five-card layout has two cards placed over
 each other.  We just mush them into a single cell.
 
 """
+
 import argparse
 from enum import Enum
 import json
@@ -90,6 +91,7 @@ from rich.console import Console, ConsoleOptions, RenderResult
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.text import Text
+
 
 class Minor(NamedTuple):
     """A card in the "minor arcana" of a Tarot deck.
@@ -191,7 +193,6 @@ class Major(NamedTuple):
 
 
 Card = Union[Major, Minor]
-
 
 
 minor_raw = [
@@ -406,20 +407,28 @@ class Tarot_1(PrepositionDetail, Enum):
     do = PrepositionDetail("TO DO", "character goal", row=1, col=4)
 
     # Coming From is a background that embraces the lie.
-    comingfrom = PrepositionDetail("COMING FROM", "background, embracing the lie", row=1, col=0)
+    comingfrom = PrepositionDetail(
+        "COMING FROM", "background, embracing the lie", row=1, col=0
+    )
 
     # Overcome is the superficial barrier blocking the “want”.
-    overcome = PrepositionDetail("TO OVERCOME", "obstacle, person, god, or curse blocking the want", row=2, col=4)
+    overcome = PrepositionDetail(
+        "TO OVERCOME", "obstacle, person, god, or curse blocking the want", row=2, col=4
+    )
 
     # Going To is the “want”: the tangible, but unhelpful thing.
-    goingto = PrepositionDetail("GOING TO", "what the character wants, tangible but unhelpful", row=1, col=8)
+    goingto = PrepositionDetail(
+        "GOING TO", "what the character wants, tangible but unhelpful", row=1, col=8
+    )
 
     # Avoiding is the lie to overcome — the foundational problem.
     avoid = PrepositionDetail("AVOID", "the lie the hero must discard", row=3, col=4)
 
     # Need/Embrace is the replacement for the lie, the real thing the character
     # needs. This may lead to a rising or falling or flat character arc
-    need = PrepositionDetail("NEED", "what the hero must gain to replace the lie", row=0, col=4)
+    need = PrepositionDetail(
+        "NEED", "what the hero must gain to replace the lie", row=0, col=4
+    )
 
 
 class Tarot_Simple(PrepositionDetail, Enum):
@@ -474,7 +483,9 @@ class Tarot_Simple(PrepositionDetail, Enum):
 
     """
 
-    character = PrepositionDetail("CHARACTER", "the MC synopsis or archetype", row=1, col=4)
+    character = PrepositionDetail(
+        "CHARACTER", "the MC synopsis or archetype", row=1, col=4
+    )
 
     # Going To is the actual goal, the character truly needs to do.
     goingTo = PrepositionDetail("GOING TO", "actual objective", row=1, col=8)
@@ -483,10 +494,17 @@ class Tarot_Simple(PrepositionDetail, Enum):
     comingFrom = PrepositionDetail("COMING FROM", "actual history", row=1, col=0)
 
     # The Lie is the the character's past that is holding them back.
-    theLie = PrepositionDetail("THE LIE", "history/context acknowledged (the lie)", row=2, col=4)
+    theLie = PrepositionDetail(
+        "THE LIE", "history/context acknowledged (the lie)", row=2, col=4
+    )
 
     # False Hope is the a goal based on the lie.
-    falseHope = PrepositionDetail("FALSE HOPE", "what the character thinks they want, colored by the lie", row=0, col=4)
+    falseHope = PrepositionDetail(
+        "FALSE HOPE",
+        "what the character thinks they want, colored by the lie",
+        row=0,
+        col=4,
+    )
 
 
 class Tarot_ShortStory(PrepositionDetail, Enum):
@@ -531,8 +549,9 @@ class Tarot_ShortStory(PrepositionDetail, Enum):
 
     try_2 = PrepositionDetail("TRY2", "They try to solve the new problem", row=2, col=0)
 
-    fail_2 = PrepositionDetail("FAIL2", "the outcome is not what they expected", row=2, col=8)
-
+    fail_2 = PrepositionDetail(
+        "FAIL2", "the outcome is not what they expected", row=2, col=8
+    )
 
 
 Spread = PrepositionDetail
@@ -604,17 +623,25 @@ class Story(dict[PrepositionDetail, Card]):
             to subdivide the cell into sub-rows.
         """
 
-        def widths(row: list[PrepositionDetail]) -> Iterator[tuple[int, PrepositionDetail]]:
+        def widths(
+            row: list[PrepositionDetail],
+        ) -> Iterator[tuple[int, PrepositionDetail]]:
             """Compute widths. Yield col width and row detail as a pair"""
             cols = [c.col for c in row] + [12]
             for i in range(len(row)):
-                yield cols[i+1] - cols[i], row[i]
+                yield cols[i + 1] - cols[i], row[i]
 
-        def standardized(standard: int, row: list[tuple[int, PrepositionDetail]]) -> Iterator[tuple[int, int|None, PrepositionDetail]]:
+        def standardized(
+            standard: int, row: list[tuple[int, PrepositionDetail]]
+        ) -> Iterator[tuple[int, int | None, PrepositionDetail]]:
             """Standardizes widths, provides offsets where needed."""
             offset = 0
             for w, detail in row:
-                yield (standard, None if detail.col == offset else detail.col-offset, detail)
+                yield (
+                    standard,
+                    None if detail.col == offset else detail.col - offset,
+                    detail,
+                )
                 offset = detail.col + standard
 
         # Build nested dicts with rows in the outer and columns in the inner
@@ -622,7 +649,9 @@ class Story(dict[PrepositionDetail, Card]):
         for p in self:
             cells[p.row][p.col] = p
         # Regroup into lists of lists in sorted order.
-        cards_by_row = [sorted(cells[row].values(), key=lambda p: (p.row, p.col)) for row in cells]
+        cards_by_row = [
+            sorted(cells[row].values(), key=lambda p: (p.row, p.col)) for row in cells
+        ]
         # Extract the widths by subtracting column of card x from column of card x+1 (or 12 for the last card)
         width_detail_by_row = [list(widths(row)) for row in cards_by_row]
         # The minimum width becomes a standard width
@@ -634,22 +663,21 @@ class Story(dict[PrepositionDetail, Card]):
 
     def text(self):
         """A plain text view of the story as an enumeration of the cards."""
-        return [
-            f"{p.value.role} {p.value.description}\n-   {self[p]}\n"
-            for p in self
-        ]
+        return [f"{p.value.role} {p.value.description}\n-   {self[p]}\n" for p in self]
 
-    def __rich_console__(self, console: Console, options: ConsoleOptions) -> RenderResult:
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> RenderResult:
         for p in self:
             yield f"[bold]{p.value.role}[/bold] [italic]{p.value.description}[/italic]"
-            yield indent(f"[bold]{self[p].name}[/bold]: {self[p].text}", prefix='    ')
+            yield indent(f"[bold]{self[p].name}[/bold]: {self[p].text}", prefix="    ")
             yield ""
 
 
 def make_story(spread: Spread, deck: list[Card]) -> Story:
     """Build a Story from a Deck."""
     random.shuffle(deck)
-    return Story.build(spread, *deck[:len(spread)])
+    return Story.build(spread, *deck[: len(spread)])
 
 
 BASE_PAGE = dedent("""
@@ -733,8 +761,8 @@ STORY_PAGE = dedent("""
 def make_page(story: Story, target: TextIO = sys.stdout) -> None:
     """Write an HTML page to represent the story."""
     template_map = {
-            "base_page.html": BASE_PAGE,
-            "story_page.html": STORY_PAGE,
+        "base_page.html": BASE_PAGE,
+        "story_page.html": STORY_PAGE,
     }
     env = Environment(
         loader=DictLoader(template_map),
@@ -748,9 +776,7 @@ def make_page(story: Story, target: TextIO = sys.stdout) -> None:
 
 def make_layout(story: Story) -> None:
     """Build a rich Layout object with the cards."""
-    max_across = max(
-        len(row) for row in story.rc_iter()
-    )
+    max_across = max(len(row) for row in story.rc_iter())
 
     def rc_to_panel(story: Story) -> Iterator[Panel]:
         for row in story.rc_iter():
@@ -776,16 +802,20 @@ def make_layout(story: Story) -> None:
             yield l
 
     layout = Layout()
-    layout.split_column(
-        *rc_to_panel(story)
-    )
+    layout.split_column(*rc_to_panel(story))
     print(layout)
 
 
 def main(argv: list[str] = sys.argv[1:]):
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--text", action="store_true", default=False)
-    parser.add_argument("-s", "--spread", action="store", choices=["7", "6", "5", "seven", "six", "five"], default="6")
+    parser.add_argument(
+        "-s",
+        "--spread",
+        action="store",
+        choices=["7", "6", "5", "seven", "six", "five"],
+        default="6",
+    )
     options = parser.parse_args(argv)
 
     tarot_cards = make_deck(minor_raw, major_raw)
