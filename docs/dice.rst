@@ -43,7 +43,13 @@ Interaction
 CLI
 ----
 
-..  autofunction:: dice.main
+..  autofunction:: dice.interactive
+
+..  autofunction:: dice.expected
+
+..  autofunction:: dice.roll
+
+..  autofunction:: dice.set_seed
 
 
 

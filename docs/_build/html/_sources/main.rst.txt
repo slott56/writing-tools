@@ -1,6 +1,6 @@
-######
- main
-######
+#########
+ main.py
+#########
 
 A main application to provide a common CLI.
 

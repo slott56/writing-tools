@@ -6,15 +6,16 @@ Does its best to use Typer and Rich to separate out core logic from console disp
 
 from sys import stderr
 from typing import Annotated
+from importlib.metadata import version
 
 from rich import print
 import typer
 
-from .names import generate_names
-from .features import generate_features
-from .dice import dice_app
+from fictool.names import generate_names
+from fictool.features import generate_features
+from fictool.dice import dice_app
 
-VERSION = "2026.03.13.dev1"
+VERSION = version("fictool")
 
 app = typer.Typer(no_args_is_help=True)
 

@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>dice.py &#8212; Writing Tools 0.3.0 documentation</title>
+    <title>dice.py &#8212; Writing Tools 2026.3.13.dev1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
-    <script src="_static/documentation_options.js?v=e259d695"></script>
+    <script src="_static/documentation_options.js?v=a2afd12e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -409,11 +409,32 @@ Used with Aggregates that have a uniform distribution of instances.</p>
 <section id="id1">
 <h3>CLI<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="dice.main">
-<span class="sig-prename descclassname"><span class="pre">dice.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interactive:</span> <span class="pre">~typing.Annotated[bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x1042982d0&gt;]</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_value:</span> <span class="pre">~typing.Annotated[bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x104298410&gt;]</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count:</span> <span class="pre">~typing.Annotated[int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x104298690&gt;]</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expression:</span> <span class="pre">~typing.Annotated[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.ArgumentInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x104278ec0&gt;]</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_value:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x104298910&gt;]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dice.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dice.main" title="Link to this definition">¶</a></dt>
-<dd><p>CLI for dice.</p>
-<p>Either provide a Python-syntax dice expression or start an interactive command loop.
-The Python syntax means the <cite>*</cite> is required for ‘3*D6’.</p>
+<dt class="sig sig-object py" id="dice.interactive">
+<span class="sig-prename descclassname"><span class="pre">dice.</span></span><span class="sig-name descname"><span class="pre">interactive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dice.html#interactive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dice.interactive" title="Link to this definition">¶</a></dt>
+<dd><p>An Interactice dice roller. Enter help at the [dice] prompt.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dice.expected">
+<span class="sig-prename descclassname"><span class="pre">dice.</span></span><span class="sig-name descname"><span class="pre">expected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr:</span> <span class="pre">~typing.Annotated[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.ArgumentInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x10a2a12b0&gt;]</span> <span class="pre">=</span> <span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dice.html#expected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dice.expected" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the min, max, mean, and standard deviation for a dice expression.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dice.roll">
+<span class="sig-prename descclassname"><span class="pre">dice.</span></span><span class="sig-name descname"><span class="pre">roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr:</span> <span class="pre">~typing.Annotated[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.ArgumentInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x10a2a12b0&gt;]</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count:</span> <span class="pre">~typing.Annotated[int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x10a2239d0&gt;]</span> <span class="pre">=</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dice.html#roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dice.roll" title="Link to this definition">¶</a></dt>
+<dd><p>Roll the handful of dice described by a dice expression.
+Use the –count option to roll multiple times.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dice.set_seed">
+<span class="sig-prename descclassname"><span class="pre">dice.</span></span><span class="sig-name descname"><span class="pre">set_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed_value:</span> <span class="pre">~typing.Annotated[str</span> <span class="pre">|</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;typer.models.OptionInfo</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x10a223d90&gt;]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dice.html#set_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dice.set_seed" title="Link to this definition">¶</a></dt>
+<dd><p>CLI for dice expressions, like 3*D6+2.</p>
+<p>Provide a Python-syntax dice expression for expected values or rolls of the dice.
+Or, start an interactive command loop.
+The Python syntax for a dice expression means the <cite>*</cite> is required for ‘3*D6’.
+This also means that apostrophe, (’, single quotes) are <em>required</em> around an expression.</p>
 </dd></dl>
 
 </section>
@@ -448,7 +469,7 @@ The Python syntax means the <cite>*</cite> is required for ‘3*D6’.</p>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="main.html">main</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plot.html">plot.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="terrain.html">terrain-tk.py and notebooks/terrain</a></li>
 <li class="toctree-l1"><a class="reference internal" href="language.html">language.py</a></li>

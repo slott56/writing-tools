@@ -5,7 +5,9 @@
 
 from  pathlib import Path
 import sys
-sys.path.insert(0, str(Path.cwd().parent / "src"))
+from importlib.metadata import version as get_version
+
+sys.path.insert(0, str(Path.cwd().parent / "src" / "fictool"))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -13,7 +15,7 @@ sys.path.insert(0, str(Path.cwd().parent / "src"))
 project = 'Writing Tools'
 copyright = '2025, S.Lott'
 author = 'S.Lott'
-release = '0.3.0'
+release = get_version('fictool')
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

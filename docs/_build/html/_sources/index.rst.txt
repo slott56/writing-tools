@@ -15,6 +15,8 @@ This can be books, stories, or TTRPG scenarios.
 Don't simply run these.
 Understand them and extend them.
 
+For the DSL Slides, see `DSL Lessons <https://github.com/slott56/writing-tools/blob/main/docs/dsl-lessons-lightning.pdf>`_.
+
 ..  toctree::
     :maxdepth: 2
     :caption: Contents:
