@@ -22,6 +22,9 @@ They're seeds for thought.
 
 7.  ``dice.py`` a DSL for "dice expressions".
 
+Also, be sure to see docs/dsl-lessons-lightning.pdf for a presentation on the Python-based DSL
+for dice.
+
 A test suite is available. 
 To make life simpler, install **uv** (https://docs.astral.sh/uv/getting-started/installation/).
 With ``uv`` the various version virtual environments will be built automatically.
